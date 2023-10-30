@@ -22,11 +22,6 @@
         {
             "src": "/(.*)",
             "dest": "education_tracker/wsgi.py"
-        },
-        {
-            "rewrites":  [
-              {"source": "/(.*)", "destination": "/"}
-            ]
         }
     ]
 }

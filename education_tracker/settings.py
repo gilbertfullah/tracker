@@ -97,8 +97,16 @@ if DEBUG:
         }
     }
 else:
-    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
-    DATABASES['default'] = dj_database_url.config(default=config('DATABASE_URL'))
+    DATABASES = {
+        'default': {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": "eu_education_tracker",
+            "USER": "root",
+            "PASSWORD": "Yusuf290419#",
+            "HOST": '127.0.0.1',
+            "PORT": "3306"
+        }
+    }
 
 
 # Password validation
