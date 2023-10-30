@@ -1,5 +1,10 @@
 from pathlib import Path
 import os
+import dj_database_url
+from decouple import config
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,13 +13,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4qceobwu%ivhwom+j&!7%tt@_xihk!n9$bz!#eo!zp_w7-#owe'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
+ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '127.0.0.1']
 
 
 # Application definition
@@ -82,17 +85,20 @@ WSGI_APPLICATION = 'education_tracker.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "eu_education_tracker",
-        "USER": "root",
-        "PASSWORD": "Yusuf290419#",
-        "HOST": '127.0.0.1',
-        "PORT": "3306"
+if DEBUG:
+    DATABASES = {
+        'default': {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": "eu_education_tracker",
+            "USER": "root",
+            "PASSWORD": "Yusuf290419#",
+            "HOST": '127.0.0.1',
+            "PORT": "3306"
+        }
     }
-}
+else:
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+    DATABASES['default'] = dj_database_url.config(default=config('DATABASE_URL'))
 
 
 # Password validation
@@ -133,6 +139,7 @@ STATIC_URL = 'static/'
 MEDIA_ROOT = BASE_DIR / 'static/src/images'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 COMPRESS_ROOT = BASE_DIR / 'static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
 
 COMPRESS_ENABLED = True
 

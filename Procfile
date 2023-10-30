@@ -1,1 +1,0 @@
-web: gunicorn education_tracker.wsgi:application --log-file -
