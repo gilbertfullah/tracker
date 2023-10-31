@@ -358,8 +358,10 @@ def index(request):
     
     ##############Media Section End#########################
     
+    ##############Audit Recommendation Section Start#########################
+    
     # Calculate the average indicator_value for all districts where status is approved
-    audit_recommendation_indicator = f"% increase in audit recommendations implemented by the councils"
+    audit_recommendation_indicator = f'% increase in audit recommendations implemented by the councils'
     
     avg_audit_recommendation = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=audit_recommendation_indicator).
                     aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
@@ -376,6 +378,40 @@ def index(request):
     
     # Define color and arrow direction based on the average values
     audit_recommendation_color, audit_recommendation_arrow = get_color_and_arrow(avg_audit_recommendation)
+    
+    audit_base_query = (IndicatorData.objects.values('district__name').annotate(avg=Avg('indicator_value')).order_by('avg'))
+        
+    data_by_audit_recommendations = {}
+    audit_district_names = []
+    
+    # Now, base_query contains the average indicator_value for each district based on answer_choice_comm_stability.
+    for result in base_query:
+        audit_district_names.append(result['district__name'])
+        average_value = float(result['avg'])
+
+        # Create or update the dataset for each trust choice
+        if audit_district_names not in data_by_audit_recommendations:
+            data_by_audit_recommendations[audit_district_names] = {
+                'label': audit_district_names,
+                'data': [],
+            }
+
+        data_by_audit_recommendations[audit_district_names]['data'].append(average_value)
+
+    # Prepare the data for the chart
+    audit_labels = list(set(data['label'] for data in data_by_audit_recommendations.values()))
+    audit_datasets = list(data_by_audit_recommendations.values())
+    
+    audit_data_values = [entry['data'] for entry in datasets]
+    
+    audit_falaba = data_values[1]
+    stability_not_at_all = data_values[2]
+    stability_somewhat = data_values[3]
+    stability_very_much = data_values[4]
+    
+    ##############Audit Recommendation Section End#########################
+    
+    ##############LC Revenue Misuse Section Start#########################
     
     # Calculate the average indicator_value for all districts where status is approved
     audit_lc_misuse = f"% Reduction in citizens who believe local councils misuse revenue"
