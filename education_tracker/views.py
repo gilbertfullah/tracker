@@ -386,28 +386,29 @@ def index(request):
     
     # Now, base_query contains the average indicator_value for each district based on answer_choice_comm_stability.
     for result in base_query:
-        audit_district_names.append(result['district__name'])
+        district_name = result['district__name']
         average_value = float(result['avg'])
+        
+        if district_name not in audit_district_names:
+            audit_district_names.append(district_name)
 
-        # Create or update the dataset for each trust choice
-        if audit_district_names not in data_by_audit_recommendations:
-            data_by_audit_recommendations[audit_district_names] = {
-                'label': audit_district_names,
+        if district_name not in data_by_audit_recommendations:
+            data_by_audit_recommendations[district_name] = {
+                'label': district_name,
                 'data': [],
             }
 
-        data_by_audit_recommendations[audit_district_names]['data'].append(average_value)
+        data_by_audit_recommendations[district_name]['data'].append(average_value)
 
-    # Prepare the data for the chart
     audit_labels = list(set(data['label'] for data in data_by_audit_recommendations.values()))
     audit_datasets = list(data_by_audit_recommendations.values())
     
-    audit_data_values = [entry['data'] for entry in datasets]
+    audit_data_values = [entry['data'] for entry in audit_datasets]
     
-    audit_falaba = data_values[1]
-    stability_not_at_all = data_values[2]
-    stability_somewhat = data_values[3]
-    stability_very_much = data_values[4]
+    audit_falaba = audit_data_values[1]
+    stability_not_at_all = audit_data_values[2]
+    stability_somewhat = audit_data_values[3]
+    stability_very_much = audit_data_values[4]
     
     ##############Audit Recommendation Section End#########################
     
