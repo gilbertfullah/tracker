@@ -17,7 +17,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = os.getenv('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['igr-tracker.onrender.com', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -85,22 +85,11 @@ WSGI_APPLICATION = 'education_tracker.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-if DEBUG:
-    DATABASES = {
-        'default': {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": "eu_education_tracker",
-            "USER": "root",
-            "PASSWORD": "Yusuf290419#",
-            "HOST": '127.0.0.1',
-            "PORT": "3306"
-        }
-    }
-else:
+
     #DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
-    DATABASES = {
-        'default': dj_database_url.parse(os.getenv('DATABASE_URL'))
-        } 
+DATABASES = {
+    'default': dj_database_url.parse(os.getenv('DATABASE_URL'))
+    } 
 
 
 # Password validation
