@@ -241,7 +241,7 @@ def assign_indicator(request, indicator_id):
         return redirect('indicator_list')
 
     if indicator.district == user_district:
-        if user_account_type in ['LocalCouncil', 'DistrictCSO']:
+        if user_account_type in ['LocalCouncil', 'DistrictCSO', 'MDA', 'MLGRD']:
             if request.method == 'POST':
                 # Process the assignment form
                 form = AssignmentForm(request.POST)

@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import IndicatorDataForm
+from .forms import IndicatorDataForm, IndicatorStatusDataForm, IndicatorDataEditForm, IndicatorDataCreateForm
 from .models import Indicator, IndicatorData, TrustInLocalAuthorities
 import os
 from django.conf import settings
 import calendar
 from django.db.models.functions import ExtractMonth, ExtractHour, ExtractDay, ExtractIsoYear, ExtractYear
-from django.db.models import Count, CharField, Value, Avg
+from django.db.models import Count, CharField, Value, Avg, Sum
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models.functions import TruncDate, Cast
@@ -208,8 +208,8 @@ def trust_in_local_authorities(request):
 
 
 def indicator_list(request):
-    indicators = IndicatorData.objects.values_list('indicator', flat=True).distinct()
-    #indicators = IndicatorData.objects.all()
+    indicators = Indicator.objects.all().distinct()
+
     return render(request, 'list_indicators.html', {'indicators': indicators})
 
 def update_indicator_value(request, id):
@@ -241,7 +241,70 @@ def indicator_detail(request, indicator_id):
     # Query all indicator values for the selected indicator
     indicator_data = IndicatorData.objects.filter(indicator=indicator_id)
     
-    return render(request, 'indicator_details.html', {'indicator_data': indicator_data})
+    if request.method == 'POST':
+        form = IndicatorStatusDataForm(request.POST)
+        if form.is_valid():
+            # Process the form data to update indicator values
+            for data in indicator_data:
+                data_id = data.id
+                field_name = f'indicator_value_{data_id}'
+                new_value = form.cleaned_data.get(field_name)
+
+                if new_value is not None:
+                    data.indicator_value = new_value
+                    data.status = form.cleaned_data['status']
+                    data.save()
+
+    else:
+        # Create a dictionary to map data IDs to their corresponding form fields
+        initial_data = {f'indicator_value_{data.id}': data.indicator_value for data in indicator_data}
+        # Pass this data to the form
+        form = IndicatorStatusDataForm(initial=initial_data)
+
+    context = {
+        'indicator': indicator,
+        'indicator_data': indicator_data,
+        'form': form,
+    }
+    
+    return render(request, 'indicator_details.html', context)
+
+def edit_indicator_data(request, indicator_id):
+    indicator_data = IndicatorData.objects.get(pk=indicator_id)
+
+    if request.method == 'POST':
+        form = IndicatorDataEditForm(request.POST, instance=indicator_data)
+        if form.is_valid():
+            form.save()
+            return redirect('indicator_list')  # Replace with the URL name for the indicator list page
+    else:
+        form = IndicatorDataEditForm(instance=indicator_data)
+
+    return render(request, 'edit_indicator.html', {'form': form, 'indicator_data': indicator_data})
+
+
+def add_indicator_data(request, indicator_id):
+    indicator = IndicatorData.objects.get(pk=indicator_id)
+
+    if request.method == 'POST':
+        form = IndicatorDataCreateForm(request.POST)
+        if form.is_valid():
+            indicator_data = form.save(commit=False)
+            indicator_data.indicator = indicator
+            indicator_data.save()
+            return redirect('indicator_list')
+    else:
+        form = IndicatorDataCreateForm()
+
+    return render(request, 'add_indicator_data.html', {'form': form, 'indicator': indicator})
+
+def delete_indicator(request, indicator_id):
+    try:
+        indicator = IndicatorData.objects.get(pk=indicator_id)
+        indicator.delete()
+        return JsonResponse({'success': True})
+    except Indicator.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Indicator not found'})
 
 def trust_in_local_authorities(request):
     # Get all available districts and service types for filtering
@@ -388,38 +451,71 @@ def trust_in_la(request):
 
 
 def citizen_priorities_view(request):
-    audit_recommendation_indicator = f"% increase in audit recommendations implemented by the councils"
+    district_names_list = ['Falaba', 'Karene', 'Kono', 'Moyamba', 'Tonkolili', 'Western Rural Area']
     
-    avg_audit_recommendation = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=audit_recommendation_indicator).
-                    aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
-    avg_audit_recommendation = round(avg_audit_recommendation, 0)
+    lc_budget_indicator = f"% of citizens who are aware of local council budget"
     
-    audit_base_query = (IndicatorData.objects.values('district__name').annotate(avg=Avg('indicator_value')).order_by('avg'))
-        
-    data_by_audit_recommendations = {}
+    lc_budget_indicator_values = IndicatorData.objects.filter(district__name__in=district_names_list, status='approved', indicator__name=lc_budget_indicator)
     
-    # Now, base_query contains the average indicator_value for each district based on answer_choice_comm_stability.
-    for result in audit_base_query:
-        district_name = result['district__name']
-        average_value = float(result['avg'])
+    lc_budget_total_sum = lc_budget_indicator_values.aggregate(Sum('indicator_value'))['indicator_value__sum'] or 0
+    
+    num_districts = len(district_names_list)
+    if num_districts > 0:
+        average = lc_budget_total_sum / num_districts
+        lc_budget_average = round(average, 2)  # Optionally, round to two decimal places
+    else:
+        lc_budget_average = 0 
+    
+    # Define color and arrow direction based on the average values
+    def get_color_and_arrow(lc_budget_average):
+        if lc_budget_average <= 230:
+            return 'red', 'down'
+        elif 231 <= lc_budget_average <= 240:
+            return 'orange', 'right'
+        else:
+            return 'green', 'up'
+    
+    # Define color and arrow direction based on the average values
+    lc_budget_color, lc_budget_arrow = get_color_and_arrow(lc_budget_average)
+    
+    data_by_lc_budget = {}
+    lc_budget_district_names = []
+    
+    for district_name in district_names_list:
+    # Your query to calculate the average indicator value for the current district
+        avg_lc_budget = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=lc_budget_indicator, district__name=district_name).aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
 
-        # Create or update the dataset for each trust choice
-        if district_name not in data_by_audit_recommendations:
-            data_by_audit_recommendations[district_name] = {
+        # Round the result if needed
+        avg_lc_budget = round(avg_lc_budget, 0)
+        
+        avg_lc_budget = float(avg_lc_budget)
+
+        lc_budget_district_names.append(district_name)
+
+        if district_name not in data_by_lc_budget:
+            data_by_lc_budget[district_name] = {
                 'label': district_name,
                 'data': [],
             }
 
-        data_by_audit_recommendations[district_name]['data'].append(average_value)
+        data_by_lc_budget[district_name]['data'].append(avg_lc_budget)
 
-    # Prepare the data for the chart
-    audit_labels = list(set(data['label'] for data in data_by_audit_recommendations.values()))
-    audit_datasets = list(data_by_audit_recommendations.values())
+    # Continue with your data processing and chart preparation
+    lc_budget_labels = list(set(data['label'] for data in data_by_lc_budget.values()))
+    lc_budget_datasets = list(data_by_lc_budget.values())
 
-    audit_data_values = [entry['data'] for entry in audit_datasets]
-
-    print(audit_labels)
-    print(audit_data_values)
+    lc_budget_data_values = [entry['data'] for entry in lc_budget_datasets]
+    
+    falaba_budget = lc_budget_data_values[0]
+    karene_budget = lc_budget_data_values[1]
+    kono_budget = lc_budget_data_values[2]
+    moyamba_budget = lc_budget_data_values[3]
+    tonkolili_budget = lc_budget_data_values[4]
+    wa_budget = lc_budget_data_values[5]
+    
+    print(lc_budget_labels)
+    print(lc_budget_data_values) 
+    print(avg_lc_budget)
     
     return render(request, 'trust_in_local_authorities.html')
     

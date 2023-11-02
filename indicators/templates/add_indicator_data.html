@@ -1,0 +1,72 @@
+{% extends "_base.html" %}
+
+{% load static %}
+{% load tailwind_filters %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<h5 class="text-center font-bold" style="margin-top: 200px; margin-bottom: 30px;">Add Indicator Data</h5>
+<div class="flex items-center justify-center min-h-screen">
+    <form method="POST" enctype="multipart/form-data" class="w-11/12 md:w-1/2 p-4 rounded-md" style="margin-bottom: 80px; background-color: #f5f5f5; border: 1px solid #e3e3e3;" autocomplete="off" action="#" novalidate>
+        {% csrf_token %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <!-- Field 2: Other Field -->
+            <div class="p-4">
+                {{ form.district|as_crispy_field }}
+            </div>
+
+            <!-- Field 3: Another Field -->
+            <div class="p-4">
+                {{ form.service_type|as_crispy_field }}
+            </div>
+
+            <!-- Field 7: Other Field -->
+            <div class="p-4">
+                {{ form.media_outlets|as_crispy_field }}
+            </div>
+
+            <!-- Field 4: Name -->
+            <div class="p-4">
+                {{ form.answer_choice_trust|as_crispy_field }}
+            </div>
+
+            <!-- Field 5: Other Field -->
+            <div class="p-4">
+                {{ form.answer_choice_comm_stability|as_crispy_field }}
+            </div>
+
+            <!-- Field 6: Another Field -->
+            <div class="p-4">
+                {{ form.bribery_services|as_crispy_field }}
+            </div>
+
+            <!-- Field 9: Name -->
+            <div class="p-4">
+                {{ form.indicator_value|as_crispy_field }}
+            </div>
+
+            <!-- Field 8: Another Field -->
+            <div class="p-4">
+                {{ form.status|as_crispy_field }}
+            </div>
+
+        </div>
+
+        <!-- Submit Button -->
+        <div class="col-span-2">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Add Indicator Data
+            </button>
+            
+        </div>
+    </form>
+</div>
+
+
+{% endblock content %}
+
+
+
+

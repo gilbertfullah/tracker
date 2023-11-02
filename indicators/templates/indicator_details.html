@@ -18,6 +18,9 @@
                                 Indicator Name
                             </th>
                             <th scope="col" class="px-6 py-3">
+                                District
+                            </th>
+                            <th scope="col" class="px-6 py-3">
                                 Answer Choice
                             </th>
                             <th scope="col" class="px-6 py-3">
@@ -30,14 +33,23 @@
                     </thead>
                     
                     <tbody>
-                        {% for indicator in indicators %}
+                        {% for indicator in indicator_data %}
                         <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
                             <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                 {{ indicator.indicator.name }}
                             </th>
                             <td class="px-6 py-4">
-                                {{ indicator.answer_choice }}
+                                {{ indicator.district }}
                             </td>
+                            {% if indicator.answer_choice_comm_stability %}
+                            <td class="px-6 py-4">
+                                {{ indicator.answer_choice_comm_stability }}
+                            </td>
+                            {% elif indicator.answer_choice_trust %}
+                            <td class="px-6 py-4">
+                                {{ indicator.answer_choice_trust }}
+                            </td>
+                            {% endif %}
                             <td class="px-6 py-4">
                                 {{ indicator.date_submitted }}
                             </td>
@@ -49,9 +61,6 @@
                     </tbody>
                 </table>
             </div>
-            
-            
-            
             
         </div>
 

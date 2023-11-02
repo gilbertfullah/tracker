@@ -11,8 +11,13 @@ urlpatterns=[
     
     path('indicator_list/', views.indicator_list, name='indicator_list'),
     
-    path('indicators/indicator-detail/<int:indicator_id>/', views.indicator_detail, name='indicator_detail'),
+    path('indicator-detail/<int:indicator_id>/', views.indicator_detail, name='indicator_detail'),
+    
+    path('edit-indicator-data/<int:indicator_id>/', views.edit_indicator_data, name='edit_indicator_data'),
 
+    path('add-indicator-data/<int:indicator_id>/', views.add_indicator_data, name='add_indicator_data'),
+    
+    path('delete-indicator/<int:indicator_id>/', views.delete_indicator, name='delete_indicator'),
     
     path('update-indicator-value/<int:id>/', views.update_indicator_value, name='update_indicator_value'),
 ]

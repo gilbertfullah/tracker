@@ -330,4 +330,4 @@ def login_form(request):
 class AssignmentForm(forms.ModelForm):
     class Meta:
         model = Assignment
-        fields = ['indicator', 'assigned_to', 'role']
+        fields = ['indicator', 'district', 'assigned_to', 'role']

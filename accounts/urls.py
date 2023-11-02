@@ -14,9 +14,7 @@ urlpatterns=[
      path('district_cso/profile/<int:id>/', views.district_cso_profile, name='district_cso_profile'),
      path('mda/profile/<int:id>/', views.mda_profile, name='mda_profile'),
      path('mlgrd/profile/<int:id>/', views.mlgrd_profile, name='mlgrd_profile'),
-     #path('jobseeker/edit_profile/<int:id>/', views.edit_jobseeker_profile, name='edit_jobseeker_profile'),
-     
-     # URL patterns for registration form views based on selected card
+
      path('register/local-council/', views.local_council_register, name='local_council_register'),
      path('register/mda/', views.mda_register, name='mda_register'),
      path('register/district-cso/', views.district_cso_register, name='district_cso_register'),

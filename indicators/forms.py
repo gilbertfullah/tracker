@@ -15,3 +15,17 @@ class CitizenPrioritiesForm(forms.ModelForm):
         model = CitizenPrioritiesData
         fields = '__all__'
         
+class IndicatorStatusDataForm(forms.ModelForm):
+    class Meta:
+        model = IndicatorData
+        fields = ['status']
+        
+class IndicatorDataEditForm(forms.ModelForm):
+    class Meta:
+        model = IndicatorData
+        fields = ['indicator', 'district', 'service_type', 'media_outlets', 'answer_choice_trust', 'answer_choice_comm_stability', 'bribery_services', 'indicator_value', 'status']
+
+class IndicatorDataCreateForm(forms.ModelForm):
+    class Meta:
+        model = IndicatorData
+        fields = ['district', 'service_type', 'media_outlets', 'answer_choice_trust', 'answer_choice_comm_stability', 'bribery_services', 'indicator_value', 'status']

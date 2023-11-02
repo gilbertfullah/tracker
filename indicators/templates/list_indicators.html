@@ -30,15 +30,21 @@
                     <tbody>
                         <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
                             <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {{indicator.indicator.name}}
+                                {{indicator.name}}
                             </th>
 
                             <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                 <div class="flex gap-4">
-                                    <a href="{% url 'manage_indicator' indicator.id %}" class="flex items-center text-blue-600 dark:text-blue-500 hover:underline">
+                                    <a href="{% url "indicator_detail" indicator.id %}" class="flex items-center text-blue-600 dark:text-blue-500 hover:underline">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="blue" fill-rule="evenodd" d="M4.19 7.262C5.94 5.577 8.517 4 12 4c3.483 0 6.06 1.577 7.81 3.262a15.086 15.086 0 0 1 3.001 4.11c.193.399.193.857 0 1.255a15.086 15.086 0 0 1-3 4.111C18.06 18.423 15.483 20 12 20c-3.483 0-6.06-1.577-7.81-3.262a15.088 15.088 0 0 1-3.001-4.11a1.435 1.435 0 0 1 0-1.255a15.088 15.088 0 0 1 3-4.111zM12 15a3 3 0 1 0 0-6a3 3 0 0 0 0 6z" clip-rule="evenodd"/></svg>
                                     </a>
-                                    <a href="#" class="flex items-center text-red-600 dark:text-red-500 hover:underline">
+                                    <a href="{% url 'edit_indicator_data' indicator.id %}" class="flex items-center text-blue-600 dark:text-blue-500 hover:underline">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M15.748 2.947a2 2 0 0 1 2.828 0l2.475 2.475a2 2 0 0 1 0 2.829L9.158 20.144l-6.38 1.076l1.077-6.38L15.748 2.947Zm-.229 3.057l2.475 2.475l1.643-1.643l-2.475-2.474l-1.643 1.642Zm1.06 3.89l-2.474-2.475l-8.384 8.384l-.503 2.977l2.977-.502l8.385-8.385Z"/></svg>
+                                    </a>
+                                    <a href="{% url "add_indicator_data" indicator.id %}" class="flex items-center text-blue-600 dark:text-blue-500 hover:underline">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 4c4.411 0 8 3.589 8 8s-3.589 8-8 8s-8-3.589-8-8s3.589-8 8-8m0-2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2zm5 9h-4V7h-2v4H7v2h4v4h2v-4h4v-2z"/></svg>
+                                    </a>
+                                    <a hx-delete="{% url 'delete_indicator' indicator.id %}" hx-confirm="Are you sure you want to delete this indicator?" class="flex items-center text-red-600 dark:text-red-500 hover:underline">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="red" d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12Z"/></svg>
                                     </a>
                                 </div>

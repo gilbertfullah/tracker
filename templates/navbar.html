@@ -14,7 +14,7 @@
                {% elif user.is_mda %}{% url 'mda_profile' %}
                {% elif user.is_mlgrd %}{% url 'mlgrd_profile' %}
                {% endif %}" class="flex items-center text-black text-sm font-medium hover:text-gray-100 dark:text-gray-400">
-               <img src="{% if user.profile_pic %}{{ user.profile_pic.url }}{% else %}{% static 'src/images/avatar.jpg' %}{% endif %}" alt="User Avatar" class="w-6 h-6 rounded-full mr-2">
+               Welcome, 
                 {{ user.username }}
             </a>
         {% else %}
@@ -38,12 +38,17 @@
         </li>
         {% if user.is_authenticated and not user.is_superuser %}
         <li>
-          <a href="{% url 'assigned_indicators' %}" class="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500" aria-current="page">Assigned Indicators</a>
+          <a href="{% url 'assigned_indicators' %}" class="block py-2 pl-3 pr-4 bg-blue-700 rounded md:bg-transparent md:p-0 md:dark:text-blue-500 {% if request.resolver_match.url_name == 'indicator_list' %}text-gray-900{% endif %}" aria-current="page">Assigned Indicators</a>
         </li>
         {% endif %}
         {% if user.is_superuser %}
         <li>
           <a href="{% url "indicator_list" %}" class="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500" aria-current="page">Indicator List</a>
+        </li>
+        {% endif %}
+        {% if user.is_superuser %}
+        <li>
+          <a href="{% url 'assignment_create' %}" class="block py-2 pl-3 pr-4 rounded md:bg-transparent md:p-0 md:dark:text-blue-500 {% if 'aria-current="page"' in request.resolver_match.url_name %}text-blue-700{% else %}text-gray-900{% endif %}" aria-current="page">Indicator Assignment</a>
         </li>
         {% endif %}
       </ul>

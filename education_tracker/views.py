@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from schools.models import School, District, ServiceType
-from django.db.models import Avg
+from django.db.models import Avg, Sum
 from django.db.models import Count, F, ExpressionWrapper, FloatField
 from decimal import Decimal
 from indicators.models import IndicatorData, CitizenPrioritiesData, CitizenPrioritiesData, TrustInLocalAuthorities, NPSEResults, CommunityStability, \
@@ -11,7 +11,6 @@ from django.db.models.functions import ExtractYear
 
 def index(request):
     ##############Trust Section Start##################
-    # Define the target answer_choice and date_submitted values
     trust_indicator = f"% increase in citizen’s trust in local authorities"
     target_choice = 'A lot'
     target_date_2018 = datetime(2018, 10, 25)
@@ -362,35 +361,44 @@ def index(request):
     
     # Calculate the average indicator_value for all districts where status is approved
     audit_recommendation_indicator = f'% increase in audit recommendations implemented by the councils'
+    district_names_list = ['Falaba', 'Karene', 'Kono', 'Moyamba', 'Tonkolili', 'Western Rural Area']
     
-    avg_audit_recommendation = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=audit_recommendation_indicator).
-                    aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
-    avg_audit_recommendation = round(avg_audit_recommendation, 0)
+    audit_indicator_values = IndicatorData.objects.filter(district__name__in=district_names_list, status='approved', indicator__name=audit_recommendation_indicator)
+    
+    audit_total_sum = audit_indicator_values.aggregate(Sum('indicator_value'))['indicator_value__sum'] or 0
+    
+    num_districts = len(district_names_list)
+    if num_districts > 0:
+        average = audit_total_sum / num_districts
+        audit_average = round(average, 2)  # Optionally, round to two decimal places
+    else:
+        audit_average = 0 
     
     # Define color and arrow direction based on the average values
-    def get_color_and_arrow(avg_audit_recommendation):
-        if avg_audit_recommendation <= 230:
+    def get_color_and_arrow(audit_average):
+        if audit_average <= 230:
             return 'red', 'down'
-        elif 231 <= avg_audit_recommendation <= 240:
+        elif 231 <= audit_average <= 240:
             return 'orange', 'right'
         else:
             return 'green', 'up'
     
     # Define color and arrow direction based on the average values
-    audit_recommendation_color, audit_recommendation_arrow = get_color_and_arrow(avg_audit_recommendation)
-    
-    audit_base_query = (IndicatorData.objects.values('district__name').annotate(avg=Avg('indicator_value')).order_by('avg'))
+    audit_recommendation_color, audit_recommendation_arrow = get_color_and_arrow(audit_average)
         
     data_by_audit_recommendations = {}
     audit_district_names = []
     
-    # Now, base_query contains the average indicator_value for each district based on answer_choice_comm_stability.
-    for result in base_query:
-        district_name = result['district__name']
-        average_value = float(result['avg'])
+    for district_name in district_names_list:
+    # Your query to calculate the average indicator value for the current district
+        avg_audit_recommendation = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=audit_recommendation_indicator, district__name=district_name).aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
+
+        # Round the result if needed
+        avg_audit_recommendation = round(avg_audit_recommendation, 0)
         
-        if district_name not in audit_district_names:
-            audit_district_names.append(district_name)
+        avg_audit_recommendation = float(avg_audit_recommendation)
+
+        audit_district_names.append(district_name)
 
         if district_name not in data_by_audit_recommendations:
             data_by_audit_recommendations[district_name] = {
@@ -398,17 +406,20 @@ def index(request):
                 'data': [],
             }
 
-        data_by_audit_recommendations[district_name]['data'].append(average_value)
+        data_by_audit_recommendations[district_name]['data'].append(avg_audit_recommendation)
 
+    # Continue with your data processing and chart preparation
     audit_labels = list(set(data['label'] for data in data_by_audit_recommendations.values()))
     audit_datasets = list(data_by_audit_recommendations.values())
-    
+
     audit_data_values = [entry['data'] for entry in audit_datasets]
     
-    audit_falaba = audit_data_values[1]
-    stability_not_at_all = audit_data_values[2]
-    stability_somewhat = audit_data_values[3]
-    stability_very_much = audit_data_values[4]
+    falaba_district = audit_data_values[0]
+    karene_district = audit_data_values[1]
+    kono_district = audit_data_values[2]
+    moyamba_district = audit_data_values[3]
+    tonkolili_district = audit_data_values[4]
+    wa_district = audit_data_values[5]
     
     ##############Audit Recommendation Section End#########################
     
@@ -417,85 +428,259 @@ def index(request):
     # Calculate the average indicator_value for all districts where status is approved
     audit_lc_misuse = f"% Reduction in citizens who believe local councils misuse revenue"
     
-    avg_lc_misuse = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=audit_lc_misuse).
-                    aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
-    avg_lc_misuse = round(avg_lc_misuse, 0)
+    misuse_indicator_values = IndicatorData.objects.filter(district__name__in=district_names_list, status='approved', indicator__name=audit_lc_misuse)
+    
+    misuse_total_sum = misuse_indicator_values.aggregate(Sum('indicator_value'))['indicator_value__sum'] or 0
+    
+    num_districts = len(district_names_list)
+    if num_districts > 0:
+        average = misuse_total_sum / num_districts
+        misuse_average = round(average, 2)  # Optionally, round to two decimal places
+    else:
+        misuse_average = 0 
     
     # Define color and arrow direction based on the average values
-    def get_color_and_arrow(avg_lc_misuse):
-        if avg_lc_misuse <= 230:
+    def get_color_and_arrow(misuse_average):
+        if misuse_average <= 230:
             return 'red', 'down'
-        elif 231 <= avg_lc_misuse <= 240:
+        elif 231 <= misuse_average <= 240:
             return 'orange', 'right'
         else:
             return 'green', 'up'
     
     # Define color and arrow direction based on the average values
-    lc_misuse_color, lc_misuse_arrow = get_color_and_arrow(avg_lc_misuse)
+    lc_misuse_color, lc_misuse_arrow = get_color_and_arrow(misuse_average)
     
+    data_by_lc_misuse = {}
+    lc_misuse_district_names = []
+    
+    for district_name in district_names_list:
+    # Your query to calculate the average indicator value for the current district
+        avg_lc_misuse = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=audit_lc_misuse, district__name=district_name).aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
+
+        # Round the result if needed
+        avg_lc_misuse = round(avg_lc_misuse, 0)
+        
+        avg_lc_misuse = float(avg_lc_misuse)
+
+        lc_misuse_district_names.append(district_name)
+
+        if district_name not in data_by_lc_misuse:
+            data_by_lc_misuse[district_name] = {
+                'label': district_name,
+                'data': [],
+            }
+
+        data_by_lc_misuse[district_name]['data'].append(avg_lc_misuse)
+
+    # Continue with your data processing and chart preparation
+    lc_misuse_labels = list(set(data['label'] for data in data_by_lc_misuse.values()))
+    lc_misuse_datasets = list(data_by_lc_misuse.values())
+
+    lc_misuse_data_values = [entry['data'] for entry in lc_misuse_datasets]
+    
+    falaba_misuse = lc_misuse_data_values[0]
+    karene_misuse = lc_misuse_data_values[1]
+    kono_misuse = lc_misuse_data_values[2]
+    moyamba_misuse = lc_misuse_data_values[3]
+    tonkolili_misuse = lc_misuse_data_values[4]
+    wa_misuse = lc_misuse_data_values[5]
+    
+    ##############LC Revenue Misuse Section End#########################
+    
+    ##############LC Budget Section Start#########################
     
     # Calculate the average indicator_value for all districts where status is approved
     lc_budget_indicator = f"% of citizens who are aware of local council budget"
     
-    avg_lc_budget = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=lc_budget_indicator).
-                    aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
-    avg_lc_budget = round(avg_lc_budget, 0)
+    lc_budget_indicator_values = IndicatorData.objects.filter(district__name__in=district_names_list, status='approved', indicator__name=lc_budget_indicator)
+    
+    lc_budget_total_sum = lc_budget_indicator_values.aggregate(Sum('indicator_value'))['indicator_value__sum'] or 0
+    
+    num_districts = len(district_names_list)
+    if num_districts > 0:
+        average = lc_budget_total_sum / num_districts
+        lc_budget_average = round(average, 2)  # Optionally, round to two decimal places
+    else:
+        lc_budget_average = 0 
     
     # Define color and arrow direction based on the average values
-    def get_color_and_arrow(avg_lc_budget):
-        if avg_lc_budget <= 230:
+    def get_color_and_arrow(lc_budget_average):
+        if lc_budget_average <= 230:
             return 'red', 'down'
-        elif 231 <= avg_lc_budget <= 240:
+        elif 231 <= lc_budget_average <= 240:
             return 'orange', 'right'
         else:
             return 'green', 'up'
     
     # Define color and arrow direction based on the average values
-    lc_budget_color, lc_budget_arrow = get_color_and_arrow(avg_lc_budget)
+    lc_budget_color, lc_budget_arrow = get_color_and_arrow(lc_budget_average)
     
+    data_by_lc_budget = {}
+    lc_budget_district_names = []
     
-    # Calculate the average indicator_value for all districts where status is approved
+    for district_name in district_names_list:
+    # Your query to calculate the average indicator value for the current district
+        avg_lc_budget = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=lc_budget_indicator, district__name=district_name).aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
+
+        # Round the result if needed
+        avg_lc_budget = round(avg_lc_budget, 0)
+        
+        avg_lc_budget = float(avg_lc_budget)
+
+        lc_budget_district_names.append(district_name)
+
+        if district_name not in data_by_lc_budget:
+            data_by_lc_budget[district_name] = {
+                'label': district_name,
+                'data': [],
+            }
+
+        data_by_lc_budget[district_name]['data'].append(avg_lc_budget)
+
+    # Continue with your data processing and chart preparation
+    lc_budget_labels = list(set(data['label'] for data in data_by_lc_budget.values()))
+    lc_budget_datasets = list(data_by_lc_budget.values())
+
+    lc_budget_data_values = [entry['data'] for entry in lc_budget_datasets]
+    
+    falaba_budget = lc_budget_data_values[0]
+    karene_budget = lc_budget_data_values[1]
+    kono_budget = lc_budget_data_values[2]
+    moyamba_budget = lc_budget_data_values[3]
+    tonkolili_budget = lc_budget_data_values[4]
+    wa_budget = lc_budget_data_values[5]
+    
+    ##############LC Budget Section End#########################
+    
+    ##############LC Projects Section Start#########################
+
     lc_project_indicator = f"% of citizens who are aware of local council projects"
     
-    avg_lc_project = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=lc_project_indicator).
-                    aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
-    avg_lc_project = round(avg_lc_project, 0)
+    lc_project_indicator_values = IndicatorData.objects.filter(district__name__in=district_names_list, status='approved', indicator__name=lc_project_indicator)
+    
+    lc_project_total_sum = lc_project_indicator_values.aggregate(Sum('indicator_value'))['indicator_value__sum'] or 0
+    
+    num_districts = len(district_names_list)
+    if num_districts > 0:
+        average = lc_project_total_sum / num_districts
+        lc_project_average = round(average, 2)  # Optionally, round to two decimal places
+    else:
+        lc_project_average = 0 
     
     # Define color and arrow direction based on the average values
-    def get_color_and_arrow(avg_lc_project):
-        if avg_lc_project <= 230:
+    def get_color_and_arrow(lc_project_average):
+        if lc_project_average <= 15:
             return 'red', 'down'
-        elif 231 <= avg_lc_project <= 240:
+        elif 15 >= lc_project_average <= 18:
             return 'orange', 'right'
         else:
             return 'green', 'up'
     
     # Define color and arrow direction based on the average values
-    lc_project_color, lc_project_arrow = get_color_and_arrow(avg_lc_project)
+    lc_project_color, lc_project_arrow = get_color_and_arrow(lc_project_average)
     
+    data_by_lc_project = {}
+    lc_project_district_names = []
     
-    # Define color and arrow direction based on the average values
-    lc_budget_color, lc_budget_arrow = get_color_and_arrow(avg_lc_budget)
+    for district_name in district_names_list:
+    # Your query to calculate the average indicator value for the current district
+        avg_lc_project = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=lc_project_indicator, district__name=district_name).aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
+
+        # Round the result if needed
+        avg_lc_project = round(avg_lc_project, 0)
+        
+        avg_lc_project = float(avg_lc_project)
+
+        lc_project_district_names.append(district_name)
+
+        if district_name not in data_by_lc_project:
+            data_by_lc_project[district_name] = {
+                'label': district_name,
+                'data': [],
+            }
+
+        data_by_lc_project[district_name]['data'].append(avg_lc_project)
+
+    # Continue with your data processing and chart preparation
+    lc_project_labels = list(set(data['label'] for data in data_by_lc_project.values()))
+    lc_project_datasets = list(data_by_lc_project.values())
+
+    lc_project_data_values = [entry['data'] for entry in lc_project_datasets]
     
+    falaba_project = lc_project_data_values[0]
+    karene_project = lc_project_data_values[1]
+    kono_project = lc_project_data_values[2]
+    moyamba_project = lc_project_data_values[3]
+    tonkolili_project = lc_project_data_values[4]
+    wa_project = lc_project_data_values[5]
     
-    # Calculate the average indicator_value for all districts where status is approved
+
+    ##############LC Projects Section End#########################
+    
+    ##############Joint Advocacy Section Start#########################
+
     joint_advocacy_indicator = f"Number of joint advocacy initiatives implemented by LCs and CSOs"
     
-    avg_joint_advocacy = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=joint_advocacy_indicator).
-                    aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
-    avg_joint_advocacy = round(avg_joint_advocacy, 0)
+    joint_advocacy_indicator_values = IndicatorData.objects.filter(district__name__in=district_names_list, status='approved', indicator__name=joint_advocacy_indicator)
+    
+    joint_advocacy_total_sum = joint_advocacy_indicator_values.aggregate(Sum('indicator_value'))['indicator_value__sum'] or 0
+    
+    num_districts = len(district_names_list)
+    if num_districts > 0:
+        average = joint_advocacy_total_sum / num_districts
+        joint_advocacy_average = round(average, 2)  # Optionally, round to two decimal places
+    else:
+        joint_advocacy_average = 0 
     
     # Define color and arrow direction based on the average values
-    def get_color_and_arrow(avg_joint_advocacy):
-        if avg_joint_advocacy <= 230:
+    def get_color_and_arrow(joint_advocacy_average):
+        if joint_advocacy_average <= 50:
             return 'red', 'down'
-        elif 231 <= avg_joint_advocacy <= 240:
+        elif 51 >= joint_advocacy_average <= 60:
             return 'orange', 'right'
         else:
             return 'green', 'up'
     
     # Define color and arrow direction based on the average values
-    joint_advocacy_color, joint_advocacy_arrow = get_color_and_arrow(avg_joint_advocacy)
+    joint_advocacy_color, joint_advocacy_arrow = get_color_and_arrow(joint_advocacy_average)
+    
+    data_by_joint_advocacy = {}
+    joint_advocacy_district_names = []
+    
+    for district_name in district_names_list:
+    # Your query to calculate the average indicator value for the current district
+        avg_joint_advocacy = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=joint_advocacy_indicator, district__name=district_name).aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
+
+        # Round the result if needed
+        avg_joint_advocacy = round(avg_joint_advocacy, 0)
+        
+        avg_joint_advocacy = float(avg_joint_advocacy)
+
+        joint_advocacy_district_names.append(district_name)
+
+        if district_name not in data_by_joint_advocacy:
+            data_by_joint_advocacy[district_name] = {
+                'label': district_name,
+                'data': [],
+            }
+
+        data_by_joint_advocacy[district_name]['data'].append(avg_joint_advocacy)
+
+    # Continue with your data processing and chart preparation
+    joint_advocacy_labels = list(set(data['label'] for data in data_by_joint_advocacy.values()))
+    joint_advocacy_datasets = list(data_by_joint_advocacy.values())
+
+    joint_advocacy_data_values = [entry['data'] for entry in joint_advocacy_datasets]
+    
+    falaba_joint_advocacy = joint_advocacy_data_values[0]
+    karene_joint_advocacy = joint_advocacy_data_values[1]
+    kono_joint_advocacy = joint_advocacy_data_values[2]
+    moyamba_joint_advocacy = joint_advocacy_data_values[3]
+    tonkolili_joint_advocacy = joint_advocacy_data_values[4]
+    wa_joint_advocacy = joint_advocacy_data_values[5]
+    
+    ##############Joint Advocacy Section End#########################
 
     
     context = {
@@ -568,25 +753,55 @@ def index(request):
         'other_social_media': json.dumps(other_social_media),
         'other': json.dumps(other),
         
-        'avg_audit_recommendation':avg_audit_recommendation,
+        'audit_average':audit_average,
         'audit_recommendation_color':audit_recommendation_color,
         'audit_recommendation_arrow':audit_recommendation_arrow,
+        'wa_district': wa_district,
+        'tonkolili_district': tonkolili_district,
+        'moyamba_district': moyamba_district,
+        'kono_district': kono_district,
+        'karene_district': karene_district,
+        'falaba_district': falaba_district,
         
-        'avg_lc_misuse':avg_lc_misuse,
+        'misuse_average':misuse_average,
         'lc_misuse_color':lc_misuse_color,
         'lc_misuse_arrow':lc_misuse_arrow,
+        'falaba_misuse': falaba_misuse,
+        'karene_misuse': karene_misuse,
+        'kono_misuse': kono_misuse,
+        'moyamba_misuse': moyamba_misuse,
+        'tonkolili_misuse': tonkolili_misuse,
+        'wa_misuse': wa_misuse,
         
-        'avg_lc_budget':avg_lc_budget,
+        'lc_budget_average':lc_budget_average,
         'lc_budget_color':lc_budget_color,
         'lc_budget_arrow':lc_budget_arrow,
+        'falaba_budget': falaba_budget,
+        'karene_budget': karene_budget,
+        'kono_budget': kono_budget,
+        'moyamba_budget': moyamba_budget,
+        'tonkolili_budget': tonkolili_budget,
+        'wa_budget': wa_budget,
         
-        'avg_lc_project':avg_lc_project,
+        'lc_project_average':lc_project_average,
         'lc_project_color':lc_project_color,
         'lc_project_arrow':lc_project_arrow,
+        'falaba_project': falaba_project,
+        'karene_project': karene_project,
+        'kono_project': kono_project,
+        'moyamba_project': moyamba_project,
+        'tonkolili_project': tonkolili_project,
+        'wa_project': wa_project,
         
-        'avg_joint_advocacy':avg_joint_advocacy,
+        'joint_advocacy_average':joint_advocacy_average,
         'joint_advocacy_color':joint_advocacy_color,
         'joint_advocacy_arrow':joint_advocacy_arrow,
+        'falaba_joint_advocacy': falaba_joint_advocacy,
+        'karene_joint_advocacy': karene_joint_advocacy,
+        'kono_joint_advocacy': kono_joint_advocacy,
+        'moyamba_joint_advocacy': moyamba_joint_advocacy,
+        'tonkolili_joint_advocacy': tonkolili_joint_advocacy,
+        'wa_joint_advocacy': wa_joint_advocacy,
         
     }
     

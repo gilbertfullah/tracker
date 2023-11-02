@@ -1,44 +1,155 @@
 {% extends "_base.html" %}
-
+{% load static %}
 
 {% block content %}
 
-    <div class="bg-gray-100">
-        <!-- Sidebar -->
-        <div class="md:w-1/4 bg-blue-900 text-white h-screen">
+  
+  <section class="py-5 mx-8">
+    <div class="container mx-auto">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-12 lg:col-span-4">
+          <div class="border rounded bg-white dark:bg-gray-800">
+            <div class="p-5 border-b border-gray-300 dark:border-gray-700">
+              <div class="text-center">
+                {% if local_council.profile_pic %}
+                <img src="{{local_council.profile_pic.url}}" alt="" class="w-20 h-20 mx-auto img-fluid rounded-full" style="max-width: 100px;">
+                {% endif %}
+                <h6 class="mt-4 mb-0 text-xl text-gray-900 dark:text-gray-50">{{local_council.first_name}} {{local_council.last_name}}</h6>
+                <p class="mb-4 text-gray-500">{{local_council.district}}</p>
+              </div>
+            </div>
             <div class="p-4">
-                <h1 class="text-2xl font-semibold">User Profile</h1>
+              <h6 class="mb-3 font-semibold text-gray-900 text-lg">Profile Overview</h6>
+              <ul class="space-y-4">
+                <li class="flex items-center mb-6">
+                  <label class="w-1/4 text-gray-900 text-sm me-5">Username</label>
+                  <p class="mb-1 text-gray-500">{{local_council.username}}</p>
+                </li>
+                <li class="flex items-center mb-6">
+                  <label class="w-1/4 text-gray-900 text-sm me-5">Gender</label>
+                  <p class="mb-1 text-gray-500">{{local_council.gender}}</p>
+                </li>
+                <li class="flex items-center mb-6">
+                  <label class="w-1/4 text-gray-900 text-sm me-5">Position/Title</label>
+                  <p class="mb-1 text-gray-500">{{local_council.position}}</p>
+                </li>
+              </ul>
             </div>
-            <ul class="space-y-2 p-4">
-                <li><a href="#profile-info" class="block">Profile Info</a></li>
-                <li><a href="#notifications" class="block">Notifications</a></li>
-                <li><a href="#indicators" class="block">Assigned Indicators</a></li>
-                <li><a href="#settings" class="block">Settings</a></li>
-                <li><a href="{% url "logout" %}" class="block">Logout</a></li>
-            </ul>
+            <div class="p-4">
+              <h6 class="mb-3 font-semibold text-gray-900 text-lg">Contact Details</h6>
+              <ul>
+                <li>
+                  <div class="flex items-center mt-4">
+                    <div class="mb-4">
+                      <i class="bi bi-envelope text-2xl"></i>
+                    </div>
+                    <div class="ms-3">
+                      <h6 class="mb-1 text-gray-900 text-sm">Email</h6>
+                      <p class="text-gray-500">{{local_council.email}}</p>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="flex items-center mt-4">
+                    <div class="mb-4">
+                      <i class="bi bi-geo-alt text-2xl"></i>
+                    </div>
+                    <div class="ms-3">
+                      <h6 class="mb-1 text-gray-900 text-sm">Location</h6>
+                      <p class="text-gray-500">{{local_council.district}}</p>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="flex items-center mt-4">
+                    <div class="mb-4">
+                      <i class="bi bi-telephone text-2xl"></i>
+                    </div>
+                    <div class="ms-3">
+                      <h6 class="mb-1 text-gray-900 text-sm">Phone</h6>
+                      <p class="text-gray-500">{{local_council.phone_number}}</p>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-span-12 lg:col-span-8">
+          <div class="p-4 border rounded bg-white dark:bg-gray-800">
+            <!-- Assigned Indicators -->
+            <div class="assigned-indicators">
+              <h6 class="mb-3 font-semibold text-gray-900 text-lg">Assigned Indicators</h6>
+              
+              {% for assignment in assigned_indicators %}
+              <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                  <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                          <tr>
+                              <th scope="col" class="px-6 py-3">
+                                  Indicator Name
+                              </th>
+                              <th scope="col" class="px-6 py-3">
+                                  Role
+                              </th>
+                              <th scope="col" class="px-6 py-3">
+                                  Date Assigned
+                              </th>
+                              <th scope="col" class="px-6 py-3">
+                                  Action
+                              </th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
+                              <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                  {{ assignment.indicator.name }}
+                              </th>
+                              <td class="px-6 py-4">
+                                  {{ assignment.role.name }}
+                              </td>
+                              <td class="px-6 py-4">
+                                  {{ assignment.assigned_at }}
+                              </td>
+                              <td class="px-6 py-4">
+                                  <a href="{% url "manage_indicator" assignment.id %}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Manage Indicator</a>
+                              </td>
+                          </tr>
+
+                      </tbody>
+                  </table>
+              </div>
+              {% empty %}
+              <p>No assign indicator yet.</p>
+              {% endfor %}
+
+            </div>
+
+          </div>
+
+          <div class="p-4 mt-8 border rounded bg-white dark:bg-gray-800">
+            
+            <div class="text-start mt-5">
+              <a href="{% url "local_council_dashboard" %}" class="block w-3/4 md:w-1/2 lg:w-1/4 bg-blue-500 hover:bg-blue-600 text-white font-semibold text-center py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out ml-0 md:ml-4">
+                Edit Profile
+              </a>
+            </div>
+
+            <div class="text-start mt-5">
+              <a href="{% url "logout" %}" class="block w-3/4 md:w-1/2 lg:w-1/4 bg-red-600 hover:bg-red-700 text-white font-semibold text-center py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out ml-0 md:ml-4">
+                Logout
+              </a>
+            </div>
+  
+          </div>
+
         </div>
 
-        <!-- Content -->
-        <div class="md:w-3/4 p-4">
-            <div id="profile-info" class="tab-content hidden">
-                <!-- Content for Profile Info tab -->
-                
-            </div>
-            <div id="notifications" class="tab-content hidden">
-                <!-- Content for Notifications tab -->
-            </div>
-            <div id="indicators" class="tab-content hidden">
-                <!-- Content for Assigned Indicators tab -->
-            </div>
-            <div id="settings" class="tab-content hidden">
-                <!-- Content for Settings tab -->
-            </div>
-            <div id="logout" class="tab-content hidden">
-                <!-- Content for Logout tab -->
-            </div>
-        </div>
-
+        
+      </div>
     </div>
+  </section>
+  
 
 
 
