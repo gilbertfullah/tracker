@@ -85,6 +85,47 @@ def index(request):
     
     ##############Trust Section End##################
     
+    ##############Maternal Mortality Section Start##################
+    
+    maternal_mortality_indicator = f"% reduction in maternal mortality by district"
+    
+    avg_maternal_mortality = Decimal(IndicatorData.objects.filter(status='approved', indicator__name=maternal_mortality_indicator).
+                    aggregate(Avg('indicator_value'))['indicator_value__avg'] or 0)
+    avg_maternal_mortality = round(avg_maternal_mortality, 2)
+    
+    def get_color_and_arrow(avg_maternal_mortality):
+        if avg_maternal_mortality <= 34:
+            return 'red', 'down'
+        elif 35 <= avg_maternal_mortality <= 49:
+            return 'orange', 'right'
+        else:
+            return 'green', 'up'
+
+    maternal_mortality_color, maternal_mortality_arrow_2018 = get_color_and_arrow(avg_maternal_mortality)
+    
+    maternal_mortality = IndicatorData.objects.filter(indicator__name=maternal_mortality_indicator)
+    
+    maternal_mortality_indicator_values = IndicatorData.objects.filter(indicator__name=maternal_mortality_indicator). \
+                                        values('indicator__name', year=ExtractYear('date_submitted')).annotate(avg_value=Avg('indicator_value')). \
+                                        order_by('year', 'indicator__name')
+                                        
+    distinct_years = maternal_mortality_indicator_values.values_list('year', flat=True).distinct()
+    
+    chart_data = {
+    'labels': list(distinct_years),
+    'datasets': [
+        {
+            'label': 'Average Indicator Value',
+            'data': list(maternal_mortality_indicator_values.values_list('avg_value', flat=True)),
+        },
+    ],
+    }
+    
+    print(maternal_mortality_indicator_values)
+    print(maternal_mortality)
+        
+    ##############Maternal Mortality Section End##################
+    
     ##############NPSE Section Start##################
     
     # Calculate the average indicator_value for all districts where status is approved
@@ -184,9 +225,12 @@ def index(request):
     
     data_values = [entry['data'] for entry in datasets]
     
-    stability_a_little_bit = data_values[1]
-    stability_not_at_all = data_values[2]
-    stability_somewhat = data_values[3]
+    print(labels)
+    print(data_values)
+    
+    stability_a_little_bit = data_values[0]
+    stability_not_at_all = data_values[1]
+    stability_somewhat = data_values[2]
     stability_very_much = data_values[4]
     
     ##############Stability Section End##################
