@@ -372,6 +372,45 @@ div{% extends "_base.html" %}
                   
                         </div>
 
+                        <div class="grid gap-2 md:grid-cols-2 lg:gap-12 mt-6">
+
+                          <!-- First Chart -->
+                          <div class="mb-12 md:mb-0 ml-6">
+                            <div class="mb-6">
+                              <h5 class="text-2xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">Central Govt MDAs</h5>
+                              <div class="chartBox">
+                                <div class="container mx-auto flex flex-wrap justify-center">
+                                  <p class="text-xl font-semibold mb-4 text-center">Existence of policy/law on revenue sharing between central and local government</p>
+                            
+                                  <!-- Third Row (Bottom Div) -->
+                                  <div class="w-full p-4">
+                                    <div class="bg-yellow-500 p-6 rounded-lg shadow-lg">
+                                      <p class="text-white text-center">25%</p>
+                                    </div>
+                                  </div>
+
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                  
+                          <!-- Second Chart -->
+                          <div class="mb-12 md:mb-0">
+                              <div class="mb-6">
+                                      <h5 class="text-2xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">% of requests for logistical support/equipment by Local councils</h5>
+                                      <div class="chartBox">
+                                        <p class="text-xl font-semibold mb-4 text-center">Responsiveness to local council request by GoSL MDAs by type of items</p>
+                                        <div id="logisticsChart"></d>
+                                      </div>
+                                      
+                              </div>
+
+                              
+                          
+                          </div>
+                  
+                        </div>
+
 
 
                       </div>
@@ -387,44 +426,44 @@ div{% extends "_base.html" %}
 
                           <div class="mb-12 md:mb-0 ml-6">
                             <div class="mb-6">
-                              <h5 class="text-3xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">Bribery for state and local council provided services</h5>
-                              <div class="flex chartBox flex-wrap">
-                                <h2 class="w-full text-center text-2xl font-semibold mb-6">% of citizens who paid bribe to get the service</h2>
-                                <!-- Column 1 -->
-                                <div class="flex-initial m-4 p-6 bg-white rounded-lg shadow-md">
-                                  <h5 class="text-xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">Services</h5>
-                                  {% for service in services %}
-                                  <div class="mb-4 pb-4 border-b border-gray-300 text-center">{{service}}</div>
-                                  {% endfor %}
+                                <h5 class="text-3xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">Bribery for state and local council provided services</h5>
+                                <div class="flex chartBox flex-wrap">
+                                    <h2 class="w-full text-center text-2xl font-semibold mb-6">% of citizens who paid bribe to get the service</h2>
+                        
+                                    <!-- Column 1 -->
+                                    <div class="flex-initial m-4 p-6 bg-white rounded-lg shadow-md w-full md:w-auto">
+                                        <h5 class="text-xl font-bold text-center leading-none text-gray-900 pr-1 mt-4 mb-4">Services</h5>
+                                        {% for service in services %}
+                                        <div class="pt-4 pb-4 border-b border-gray-300 text-center">{{service}}</div>
+                                        {% endfor %}
+                                    </div>
+                        
+                                    <!-- Column 2 -->
+                                    <div class="flex-initial m-4 p-6 bg-white rounded-lg shadow-md w-full md:w-auto">
+                                        <h5 class="text-xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">2023</h5>
+                                        {% for data in bribery_data %}
+                                        <div class="p-4 mb-4 border-b text-white border-gray-300 {{ data.color_class }}">{{data.percentage}}%</div>
+                                        {% endfor %}
+                                    </div>
+                        
+                                    <!-- Column 3 -->
+                                    <div class="flex-initial m-4 p-6 bg-white rounded-lg shadow-md w-full md:w-auto">
+                                        <h5 class="text-xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">Target</h5>
+                                        <div class="pt-5 pb-5 border-b border-gray-300 text-center">20%</div>
+                                        <div class="pt-5 pb-5 border-b border-gray-300 text-center">20%</div>
+                                    </div>
+                        
+                                    <!-- New Row for Legend -->
+                                    <div class="w-full mt-8 text-center">
+                                        <p class="legend-item bg-red-500 inline-block text-center text-white p-4">High (>50%)</p>
+                                        <p class="legend-item bg-yellow-500 inline-block text-center text-white p-4">Medium (>30% <50%)</p>
+                                        <p class="legend-item bg-green-500 inline-block text-center text-white p-4">Low (<30%)</p>
+                                    </div>
+                                    <p class="legend-item flex-1 text-end text-black mt-4">Source: Afrobarometer(2022)</p>
                                 </div>
-                              
-                                <!-- Column 2 -->
-                                <div class="flex-initial m-4 p-6 bg-white rounded-lg shadow-md">
-                                  <h5 class="text-xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">2023</h5>
-                                  {% for data in bribery_data %}
-                                  <div class="mb-4 pb-4 border-b border-gray-300">{{data.percentage}}%</div>
-                                  {% endfor %}
-                                </div>
-                              
-                                <!-- Column 3 -->
-                                <div class="flex-initial m-4 p-6 bg-white rounded-lg shadow-md">
-                                  <h5 class="text-xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">Status</h5>
-                                  {% for data in bribery_data %}
-                                  <div class="mb-4 p-6 pb-4 border-b border-gray-300 {{ data.color_class }}"></div>
-                                  {% endfor %}
-                                </div>
-                              
-                                <!-- New Row for Legend -->
-                                <div class="w-full mt-8 text-center">
-                                  <p class="legend-item bg-red-500 inline-block text-center text-white p-4">High (>50%)</p>
-                                  <p class="legend-item bg-yellow-500 inline-block text-center text-white p-4">Medium (>30% <50%)</p>
-                                  <p class="legend-item bg-green-500 inline-block text-center text-white p-4">Low (<30%)</p>
-                                </div>
-                                <p class="legend-item flex-1 text-end text-black mt-4">Source: Afrobarometer(2022)</p>
-                              </div>
-                              
                             </div>
                           </div>
+                        
 
                           <div class="mb-12 md:mb-0 ml-6">
                             <div class="mb-6">
@@ -476,47 +515,47 @@ div{% extends "_base.html" %}
 
                           <div class="mb-12 md:mb-0 ml-6">
                             <div class="mb-6">
-                              <h5 class="text-2xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">% of people who believe local revenue is not misused</h5>
+                              <h5 class="text-2xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">% of own source revenue invested in tangible service delivery programmes</h5>
                               <div class="chartBox">
                                 <div class="container mx-auto flex flex-wrap justify-center">
-                                  <p class="text-xl font-semibold mb-4 text-center">Funds that people assume are unlikely to be misused</p>
-                                  <!-- Data Loop -->
-                                  {% for data in misuse_data %}
-                                  <div class="w-full md:w-1/2 lg:w-1/3 p-4">
-                                    <div class="p-6 rounded-lg shadow-lg {{ data.color_class }}">
-                                      <!-- District Name -->
-                                      <p class="text-white text-center">{{ data.district|safe }}</p>
-                                      
-                                      <!-- Percentage with Tooltip -->
-                                      <p class="text-white text-center relative tooltip pl-6">
-                                        {{ data.percentage }}%
-                                        <span class="tooltiptext">{{ data.color_description }}</span>
-                                      </p>
-                                    </div>
-                                  </div>
-                                {% endfor %}
-
-                                  <!-- Third Row (Bottom Div) -->
-                                  <div class="w-full p-4">
-                                    <div class="bg-red-500 p-6 rounded-lg shadow-lg">
-                                      <p class="text-white text-center">Average of 6 Districts: 18%</p>
-                                    </div>
+                                  <!-- Column 1 -->
+                                  <div class="flex-initial m-4 p-6 bg-white rounded-lg shadow-md">
+                                    <h5 class="text-xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">2023</h5>
+                                    <div class="mb-4 p-6 border-b border-gray-300 text-center text-white bg-yellow-500">45%</div>
                                   </div>
 
                                   <!-- Legend -->
                                   <div class="legend-container mt-8 text-center flex">
-                                    <p class="legend-item bg-red-500 flex-1 text-center text-white p-4 pt-8">High Misuse</p>
-                                    <p class="legend-item bg-yellow-500 flex-2 text-center text-white p-4 pt-8">Medium Misuse</p>
-                                    <p class="legend-item bg-green-500 flex-1 text-center text-white p-4">Low Misuse</p>
+                                    <p class="legend-item bg-red-500 flex-1 text-center text-white p-4 pt-8">Low (<40%)</p>
+                                    <p class="legend-item bg-yellow-500 flex-2 text-center text-white p-4 pt-8">Medium (=>40 - >50%)</p>
+                                    <p class="legend-item bg-green-500 flex-1 text-center text-white p-4">High (>50%)</p>
                                   </div>
-                                  
+
                                 </div>
-                                <p class="legend-item flex-1 text-end text-black mt-4">Source: Baseline(2023)</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Second Chart -->
+                          <div class="mb-12 md:mb-0 ml-6">
+                            <div class="mb-6">
+                              <h5 class="text-2xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">One annual State of LCs Report on revenue and services published</h5>
+                              <div class="chartBox">
+                                <div class="container mx-auto flex flex-wrap justify-center">
+                                  <!-- Column 1 -->
+                                  <div class="flex-initial m-4 p-6 bg-white rounded-lg shadow-md">
+                                    <h5 class="text-xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">2023</h5>
+                                    <div class="mb-4 pb-4 border-b border-gray-300 text-center">0</div>
+                                  </div>
+
+                                </div>
                               </div>
                             </div>
                           </div>
                         
                         </div>
+
+                        
                         
                       </div>
                     </div>
@@ -1564,6 +1603,38 @@ div{% extends "_base.html" %}
         data: d,
         options: options,
       });
+    </script>
+
+    <script>
+      var options = {
+        series: [{
+        data: [114, 100, 100, 100, 100, 92, 88, 88, 75, 73, 62, 43, 33, 25]
+      }],
+        chart: {
+        type: 'bar',
+        height: 350
+      },
+      plotOptions: {
+        bar: {
+          borderRadius: 4,
+          horizontal: true,
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: function (val) {
+          return val.toFixed(0) + "%";
+        },
+      },
+      xaxis: {
+        categories: ['Approval of healthworkers', 'Hospital infrastructure', 'School infrastructure', 'Teaching and learning materials', 'Teacher approval', 'Medicines', 'Farming inputs',
+          'Health equipments', 'Agricultural machines', 'Motorbikes', 'Computers', 'Approval of extention workers', 'Generator', 'Vehicle'
+        ],
+      }
+      };
+
+      var logistics = new ApexCharts(document.querySelector("#logisticsChart"), options);
+      logistics.render();
     </script>
     
 
