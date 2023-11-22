@@ -128,7 +128,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 MEDIA_ROOT = BASE_DIR / 'static/src/images'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+    BASE_DIR.parent / "node_modules",
+]
 COMPRESS_ROOT = BASE_DIR / 'static'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
 

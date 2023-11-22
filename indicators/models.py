@@ -25,8 +25,6 @@ ANSWER_CHOICE_TRUST = (
 ANSWER_CHOICE_COMM_STABILITY = (
         ('', 'Select an answer'),
         ('Very much', 'Very much'),
-        ('Somewhat', 'Somewhat'),
-        ('A little bit', 'A little bit'),
         ('Not at all', 'Not at all'),
     )
 
@@ -35,6 +33,17 @@ BRIBERY_SERVICES = (
         ('Medical services', 'Medical services'),
         ('Public school', 'Public school'),
         ('Identity documents', 'Identity documents'),
+    )
+
+AGRI_SATISFACTION = (
+        ('', 'Select a service'),
+        ('Improved seeds supply', 'Improved seeds supply'),
+        ('Training on farming techniques', 'Training on farming techniques'),
+        ('Agricultural machines', 'Agricultural machines'),
+        ('Fertilizers', 'Fertilizers'),
+        ('Processing facilities', 'Processing facilities'),
+        ('Advice on farming techniques', 'Advice on farming techniques'),
+        ('Financial loans', 'Financial loans'),
     )
     
 class Indicator(models.Model):
@@ -60,6 +69,20 @@ class IndicatorData(models.Model):
     
     class Meta:
         verbose_name_plural = "Indicator Data"
+    
+    def __str__(self):
+        return self.indicator.name
+    
+class SatisfactionData(models.Model):
+    indicator = models.ForeignKey(Indicator, on_delete=models.CASCADE)
+    district = models.ForeignKey(District, on_delete=models.CASCADE, blank=True, null=True)
+    satisfaction_services = models.CharField(max_length=100, choices=AGRI_SATISFACTION, blank=True, null=True)
+    indicator_value = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=10, choices=[("pending", "Pending"), ("approved", "Approved")], default="pending")
+    date_submitted = models.DateField(auto_now_add=False, default=timezone.now)
+    
+    class Meta:
+        verbose_name_plural = "Satisfaction Data"
     
     def __str__(self):
         return self.indicator.name

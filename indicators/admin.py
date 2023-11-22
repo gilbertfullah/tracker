@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Indicator, IndicatorData, CitizenPrioritiesData, TrustInLocalAuthorities, NPSEResults, CommunityStability, BudgetAllocation, \
+from .models import Indicator, IndicatorData, SatisfactionData, CitizenPrioritiesData, TrustInLocalAuthorities, NPSEResults, CommunityStability, BudgetAllocation, \
     BriberyReductionData, AnnualReportPublishedData, LocalOwnSourceRevenueData, AuditRecommendationsData, LCMisuseRevenueData, \
         AwarenessLCBudgetData, AwarenessLCProjectsData, JointAdvocacyInitiativesData
 
@@ -15,6 +15,7 @@ class IndicatorAdmin(admin.ModelAdmin):
 
 admin.site.register(Indicator, IndicatorAdmin)
 admin.site.register(IndicatorData)
+admin.site.register(SatisfactionData)
 admin.site.register(CitizenPrioritiesData)
 admin.site.register(TrustInLocalAuthorities)
 admin.site.register(NPSEResults)
