@@ -2508,6 +2508,10 @@ input[type="range"]::-ms-fill-lower {
     margin-top: 2rem;
   }
 
+  .md\:ml-0 {
+    margin-left: 0px;
+  }
+
   .md\:flex {
     display: flex;
   }
