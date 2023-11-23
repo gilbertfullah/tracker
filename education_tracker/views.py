@@ -508,7 +508,7 @@ def index(request):
             return "> 50%"
     
     # Process the percentage values and add color class and color description
-    lc_budget_data = [
+    lc_projects_data = [
         {
             'districts': district,
             "percentage": val,
@@ -604,7 +604,7 @@ def index(request):
         
         'lc_budget_data':lc_budget_data,
         
-        'lc_budget_data':lc_budget_data,
+        'lc_projects_data':lc_projects_data,
         
         'joint_advocacy_data':joint_advocacy_data,
         
