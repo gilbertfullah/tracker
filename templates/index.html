@@ -1,5 +1,5 @@
-div{% extends "_base.html" %}
-
+{% extends "_base.html" %}
+{% load static %}
 {% block content %}
 
     <style>
@@ -370,7 +370,9 @@ div{% extends "_base.html" %}
                               <div class="mb-6">
                                       <h5 class="text-2xl font-bold text-center leading-none text-gray-900 pr-1 mb-4">Timeliness of transfers​ to Local Councils</h5>
                                       <div class="chartBox">
-                                        <canvas id="transferChart"></canvas>
+                                        <div>
+                                          <img src="{% static 'src/images/transfers.png' %}" />
+                                        </d>
                                       </div>
                               </div>
 
